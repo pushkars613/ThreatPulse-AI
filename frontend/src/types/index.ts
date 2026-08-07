@@ -77,7 +77,8 @@ export interface EvidenceNode {
 export interface GraphNodeData {
   id: string;
   label: string;
-  kind: "attacker" | "email" | "user" | "app" | "file" | "process" | "registry" | "system" | "server";
+  kind:
+    "attacker" | "email" | "user" | "app" | "file" | "process" | "registry" | "system" | "server";
   detail: string;
   severity: Severity;
   position: { x: number; y: number };
@@ -108,4 +109,36 @@ export interface PipelineStage {
   id: string;
   label: string;
   description: string;
+}
+
+export interface AnalysisTimelineItem {
+  timestamp: string;
+  source: string;
+  event: string;
+  evidence: string;
+}
+
+export interface AnalysisFlowchartNode {
+  id: string;
+  label: string;
+  detail: string;
+}
+
+export interface AnalysisFlowchartEdge {
+  id: string;
+  source: string;
+  target: string;
+  label: string;
+}
+
+export interface AnalysisResult {
+  severityScore: number;
+  attackCategory: string;
+  probableIntent: string;
+  damageDone: string;
+  timeline: AnalysisTimelineItem[];
+  flowchart: {
+    nodes: AnalysisFlowchartNode[];
+    edges: AnalysisFlowchartEdge[];
+  };
 }

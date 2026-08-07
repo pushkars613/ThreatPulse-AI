@@ -36,15 +36,6 @@ export const Route = createFileRoute("/reports")({
   component: ReportsPage,
 });
 
-const recommendations = [
-  "Isolate WKS-2213 and reimage from a known-good baseline before returning it to the user.",
-  "Force password reset and revoke sessions for all four accounts cached on the host.",
-  "Block cdn-invoicecloud[.]net and 185.212.44.19 at the proxy, firewall and mail gateway.",
-  "Enable LSASS protection (RunAsPPL) and Attack Surface Reduction rules fleet-wide.",
-  "Retire the legacy supplier-domain allow-list that let an SPF-failing message through.",
-  "Add a detection for autorun keys created by processes running from user-writable paths.",
-];
-
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="border-t px-8 py-8 duration-500 animate-in fade-in first:border-t-0">
@@ -61,14 +52,14 @@ function ReportsPage() {
   const { data: iocs } = useSuspenseQuery({ queryKey: queryKeys.iocs, queryFn: api.getIocs });
 
   const exportAs = (format: string) =>
-    toast.success(`${format} export queued`, { description: "INV-2481 report will download once rendered." });
+    toast.success(`${format} export queued`, { description: "Report will download once rendered." });
 
   return (
     <PageContainer className="max-w-5xl">
       <PageHeader
-        eyebrow="INV-2481"
+        eyebrow="ThreatPulse"
         title="Incident Report"
-        description="Generated 07 Aug 2026 · Lead analyst M. Okafor · Classification: Internal / Restricted"
+        description="Generated from the latest backend analysis."
         actions={
           <>
             <Button variant="outline" onClick={() => exportAs("PDF")}>
@@ -89,7 +80,7 @@ function ReportsPage() {
           <div className="flex flex-wrap items-center justify-between gap-4 bg-accent/40 px-8 py-6">
             <div>
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Case</p>
-              <p className="text-xl font-bold">Finance phishing → credential theft</p>
+              <p className="text-xl font-bold">{overview.malwareFamily}</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
@@ -128,6 +119,11 @@ function ReportsPage() {
                   </div>
                 </li>
               ))}
+              {events.length === 0 && (
+                <li className="text-sm text-muted-foreground">
+                  No timeline events are available.
+                </li>
+              )}
             </ol>
           </Section>
 
@@ -155,6 +151,13 @@ function ReportsPage() {
                       </TableCell>
                     </TableRow>
                   ))}
+                  {techniques.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                        No MITRE mapping was returned by the backend.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -182,38 +185,30 @@ function ReportsPage() {
                       </TableCell>
                     </TableRow>
                   ))}
+                  {iocs.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                        No indicators were returned by the backend.
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
           </Section>
 
           <Section title="5. Risk Assessment">
-            <div className="grid gap-4 sm:grid-cols-3">
-              {[
-                ["Confidentiality", "High", "Credentials and finance documents exfiltrated."],
-                ["Integrity", "Medium", "Persistence installed; no data tampering observed."],
-                ["Availability", "Low", "No destructive or ransomware payload deployed."],
-              ].map(([dim, level, note]) => (
-                <div key={dim} className="rounded-xl border p-4">
-                  <p className="text-sm font-semibold">{dim}</p>
-                  <p className="mt-1 text-lg font-bold">{level}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{note}</p>
-                </div>
-              ))}
+            <div className="rounded-xl border p-4">
+              <p className="text-sm font-semibold">Backend severity score</p>
+              <p className="mt-1 text-lg font-bold">{overview.riskScore}/100</p>
+              <p className="mt-1 text-xs text-muted-foreground">{overview.summary}</p>
             </div>
           </Section>
 
           <Section title="6. Recommendations">
-            <ol className="space-y-2.5">
-              {recommendations.map((rec, i) => (
-                <li key={rec} className="flex gap-3 text-sm">
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/12 text-xs font-semibold text-primary">
-                    {i + 1}
-                  </span>
-                  <span className="text-muted-foreground">{rec}</span>
-                </li>
-              ))}
-            </ol>
+            <p className="text-sm text-muted-foreground">
+              No recommendations were returned by the backend response.
+            </p>
           </Section>
         </CardContent>
       </Card>

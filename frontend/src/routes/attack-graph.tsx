@@ -26,6 +26,7 @@ import {
   TerminalSquare,
   User,
   KeySquare,
+  ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/layout/PageContainer";
@@ -41,9 +42,16 @@ export const Route = createFileRoute("/attack-graph")({
   head: () => ({
     meta: [
       { title: "Attack Graph — ThreatVision AI" },
-      { name: "description", content: "Interactive attack path graph linking attacker infrastructure, users, processes and exfiltration endpoints." },
+      {
+        name: "description",
+        content:
+          "Interactive attack path graph linking attacker infrastructure, users, processes and exfiltration endpoints.",
+      },
       { property: "og:title", content: "Attack Graph — ThreatVision AI" },
-      { property: "og:description", content: "Zoomable reconstruction of the full intrusion path." },
+      {
+        property: "og:description",
+        content: "Zoomable reconstruction of the full intrusion path.",
+      },
     ],
   }),
   loader: ({ context }) =>
@@ -81,9 +89,18 @@ function AttackNode({ data, selected }: NodeProps) {
         selected && "ring-2 ring-primary",
       )}
     >
-      <Handle type="target" position={Position.Top} className="!size-2 !border-none !bg-muted-foreground" />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="!size-2 !border-none !bg-muted-foreground"
+      />
       <div className="flex items-center gap-2.5">
-        <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted", severityText[d.severity])}>
+        <span
+          className={cn(
+            "flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted",
+            severityText[d.severity],
+          )}
+        >
           <Icon className="size-4" />
         </span>
         <div className="min-w-0">
@@ -91,7 +108,11 @@ function AttackNode({ data, selected }: NodeProps) {
           <p className="truncate text-[11px] text-muted-foreground">{d.detail}</p>
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="!size-2 !border-none !bg-muted-foreground" />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="!size-2 !border-none !bg-muted-foreground"
+      />
     </div>
   );
 }
@@ -138,9 +159,9 @@ function AttackGraphPage() {
   return (
     <PageContainer>
       <PageHeader
-        eyebrow="INV-2481"
-        title="Attack Graph"
-        description="Reconstructed attack path. Scroll to zoom, drag to pan, click a node for context."
+        eyebrow="ThreatPulse"
+        title="Attack Flowchart"
+        description="Kimi-generated attack path from the uploaded logs. Safe results return an empty graph."
         actions={
           <Button variant="outline" asChild>
             <Link to="/evidence">Open Evidence Explorer</Link>
@@ -148,71 +169,98 @@ function AttackGraphPage() {
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="h-[640px] overflow-hidden rounded-2xl border bg-card"
-        >
-          <ReactFlowProvider>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              nodeTypes={nodeTypes}
-              onNodeClick={onNodeClick}
-              fitView
-              fitViewOptions={{ padding: 0.2 }}
-              proOptions={{ hideAttribution: true }}
-              minZoom={0.2}
-            >
-              <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="var(--color-border)" />
-              <Controls className="!rounded-lg !border !bg-card !shadow-soft" showInteractive={false} />
-              <MiniMap
-                pannable
-                zoomable
-                className="!rounded-lg !border !bg-card"
-                maskColor="color-mix(in oklab, var(--color-muted) 60%, transparent)"
-                nodeColor="var(--color-primary)"
-              />
-            </ReactFlow>
-          </ReactFlowProvider>
-        </motion.div>
-
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle className="text-base">Node details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {selected ? (
-              <>
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold">{selected.label}</p>
-                  <SeverityBadge severity={selected.severity} />
-                </div>
-                <p className="text-sm text-muted-foreground">{selected.detail}</p>
-                <dl className="space-y-2 border-t pt-3 text-sm">
-                  <div>
-                    <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">Entity type</dt>
-                    <dd className="capitalize">{selected.kind}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">Node ID</dt>
-                    <dd className="font-mono text-xs">{selected.id}</dd>
-                  </div>
-                </dl>
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link to="/timeline">See related events</Link>
-                </Button>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Select any node in the graph to inspect the entity and pivot into its evidence.
-              </p>
-            )}
+      {data.nodes.length === 0 ? (
+        <Card>
+          <CardContent className="flex min-h-[360px] flex-col items-center justify-center text-center">
+            <span className="flex size-14 items-center justify-center rounded-xl bg-success/15 text-success">
+              <ShieldCheck className="size-7" />
+            </span>
+            <p className="mt-4 text-lg font-semibold">No attack flowchart</p>
+            <p className="mt-1 max-w-md text-sm text-muted-foreground">
+              Kimi did not find concrete evidence of an attack, so the backend returned safe values
+              and no attack path.
+            </p>
           </CardContent>
         </Card>
-      </div>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="h-[640px] overflow-hidden rounded-2xl border bg-card"
+          >
+            <ReactFlowProvider>
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                nodeTypes={nodeTypes}
+                onNodeClick={onNodeClick}
+                fitView
+                fitViewOptions={{ padding: 0.2 }}
+                proOptions={{ hideAttribution: true }}
+                minZoom={0.2}
+              >
+                <Background
+                  variant={BackgroundVariant.Dots}
+                  gap={20}
+                  size={1}
+                  color="var(--color-border)"
+                />
+                <Controls
+                  className="!rounded-lg !border !bg-card !shadow-soft"
+                  showInteractive={false}
+                />
+                <MiniMap
+                  pannable
+                  zoomable
+                  className="!rounded-lg !border !bg-card"
+                  maskColor="color-mix(in oklab, var(--color-muted) 60%, transparent)"
+                  nodeColor="var(--color-primary)"
+                />
+              </ReactFlow>
+            </ReactFlowProvider>
+          </motion.div>
+
+          <Card className="h-fit">
+            <CardHeader>
+              <CardTitle className="text-base">Node details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {selected ? (
+                <>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold">{selected.label}</p>
+                    <SeverityBadge severity={selected.severity} />
+                  </div>
+                  <p className="text-sm text-muted-foreground">{selected.detail}</p>
+                  <dl className="space-y-2 border-t pt-3 text-sm">
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Entity type
+                      </dt>
+                      <dd className="capitalize">{selected.kind}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Node ID
+                      </dt>
+                      <dd className="font-mono text-xs">{selected.id}</dd>
+                    </div>
+                  </dl>
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link to="/timeline">See related events</Link>
+                  </Button>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Select any node in the graph to inspect the entity and pivot into its evidence.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </PageContainer>
   );
 }

@@ -19,11 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { useTheme } from "@/hooks/useTheme";
 
-const notifications = [
-  { id: 1, title: "INV-2481 escalated to Critical", time: "2 min ago" },
-  { id: 2, title: "LSASS access detected on WKS-2213", time: "18 min ago" },
-  { id: 3, title: "Evidence parsing finished for INV-2477", time: "1 hr ago" },
-];
+const notifications: { id: string; title: string; time: string }[] = [];
 
 export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
   const { theme, toggleTheme } = useTheme();
@@ -55,7 +51,9 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
               <Bell className="size-[18px]" />
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-critical" />
+              {notifications.length > 0 && (
+                <span className="absolute right-2 top-2 size-2 rounded-full bg-critical" />
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 p-0">
@@ -67,6 +65,11 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
                   <p className="mt-0.5 text-xs text-muted-foreground">{n.time}</p>
                 </li>
               ))}
+              {notifications.length === 0 && (
+                <li className="px-4 py-3 text-sm text-muted-foreground">
+                  No notifications.
+                </li>
+              )}
             </ul>
           </PopoverContent>
         </Popover>
@@ -75,15 +78,15 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
           <DropdownMenuTrigger asChild>
             <button className="ml-1 flex items-center gap-2 rounded-full p-1 pr-3 transition-colors hover:bg-accent">
               <Avatar className="size-8">
-                <AvatarFallback className="bg-primary/15 text-xs font-semibold text-primary">MO</AvatarFallback>
+                <AvatarFallback className="bg-primary/15 text-xs font-semibold text-primary">TP</AvatarFallback>
               </Avatar>
-              <span className="hidden text-sm font-medium sm:block">M. Okafor</span>
+              <span className="hidden text-sm font-medium sm:block">Analyst</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuLabel>
-              <p className="text-sm font-medium">M. Okafor</p>
-              <p className="text-xs font-normal text-muted-foreground">Lead IR Analyst</p>
+              <p className="text-sm font-medium">Analyst</p>
+              <p className="text-xs font-normal text-muted-foreground">ThreatPulse user</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

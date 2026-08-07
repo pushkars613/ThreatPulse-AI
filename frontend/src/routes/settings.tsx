@@ -48,7 +48,7 @@ function SettingsPage() {
       <PageHeader
         eyebrow="Workspace"
         title="Settings"
-        description="Preferences apply to your analyst profile within the Northwind tenant."
+        description="Preferences apply to your analyst profile."
         actions={<Button onClick={() => toast.success("Settings saved")}>Save changes</Button>}
       />
 
@@ -60,15 +60,15 @@ function SettingsPage() {
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Display name</Label>
-              <Input id="name" defaultValue="M. Okafor" />
+              <Input id="name" placeholder="Analyst name" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="m.okafor@northwind.io" />
+              <Input id="email" type="email" placeholder="analyst@example.com" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Input id="role" defaultValue="Lead IR Analyst" readOnly className="bg-muted/50" />
+              <Input id="role" placeholder="Analyst role" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="tz">Timezone</Label>

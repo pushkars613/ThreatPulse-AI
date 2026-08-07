@@ -11,9 +11,16 @@ export const Route = createFileRoute("/timeline")({
   head: () => ({
     meta: [
       { title: "Incident Timeline — ThreatVision AI" },
-      { name: "description", content: "Minute-by-minute reconstruction of the intrusion from phishing delivery to data exfiltration." },
+      {
+        name: "description",
+        content:
+          "Minute-by-minute reconstruction of the intrusion from phishing delivery to data exfiltration.",
+      },
       { property: "og:title", content: "Incident Timeline — ThreatVision AI" },
-      { property: "og:description", content: "Expandable forensic timeline correlated across hosts and identities." },
+      {
+        property: "og:description",
+        content: "Expandable forensic timeline correlated across hosts and identities.",
+      },
     ],
   }),
   loader: ({ context }) =>
@@ -22,14 +29,21 @@ export const Route = createFileRoute("/timeline")({
 });
 
 function TimelinePage() {
-  const { data: events } = useSuspenseQuery({ queryKey: queryKeys.timeline, queryFn: api.getTimeline });
+  const { data: events } = useSuspenseQuery({
+    queryKey: queryKeys.timeline,
+    queryFn: api.getTimeline,
+  });
 
   return (
     <PageContainer className="max-w-5xl">
       <PageHeader
-        eyebrow="INV-2481"
+        eyebrow="ThreatPulse"
         title="Incident Timeline"
-        description="7 correlated events spanning 10 minutes on 07 August 2026. Select an event to inspect raw fields."
+        description={
+          events.length > 0
+            ? `${events.length} supporting events from the uploaded logs. Select an event to inspect evidence.`
+            : "No attack timeline was produced because the uploaded logs were assessed as safe."
+        }
         actions={
           <Button variant="outline" asChild>
             <Link to="/attack-graph">
@@ -41,7 +55,13 @@ function TimelinePage() {
 
       <Card>
         <CardContent>
-          <TimelineList events={events} />
+          {events.length > 0 ? (
+            <TimelineList events={events} />
+          ) : (
+            <div className="rounded-xl border bg-success/10 p-5 text-sm text-muted-foreground">
+              Safe result: no suspicious or malicious timeline entries were returned by Kimi.
+            </div>
+          )}
         </CardContent>
       </Card>
     </PageContainer>

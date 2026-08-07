@@ -32,7 +32,6 @@ function highlight(line: string, filter: string) {
   return parts.map((part, i) => {
     const isKey = /^[A-Za-z_"][\w".-]*:$|^"[^"]+":$/.test(part);
     const isNum = /^-?\d[\d.:,]*$/.test(part);
-    const isIoc = /(185\.212\.44\.19|cdn-invoicecloud|invoice\.exe|odsync\.exe|lsass|EncodedCommand|9f2b1c4e)/i.test(part);
     const isMatch = filter.length > 1 && part.toLowerCase().includes(filter.toLowerCase());
     return (
       <span
@@ -40,7 +39,6 @@ function highlight(line: string, filter: string) {
         className={cn(
           isKey && "text-info",
           isNum && "text-warning",
-          isIoc && "font-semibold text-critical",
           isMatch && "rounded bg-primary/25 text-foreground",
         )}
       >
@@ -52,11 +50,13 @@ function highlight(line: string, filter: string) {
 
 function EvidencePage() {
   const { data: tree } = useSuspenseQuery({ queryKey: queryKeys.evidence, queryFn: api.getEvidenceTree });
-  const [selected, setSelected] = useState<EvidenceNode>(tree[0]!.children![0]!);
+  const firstFile = tree.flatMap((folder) => folder.children ?? [])[0] ?? null;
+  const [selected, setSelected] = useState<EvidenceNode | null>(firstFile);
   const [treeFilter, setTreeFilter] = useState("");
   const [contentFilter, setContentFilter] = useState("");
 
   const lines = useMemo(() => {
+    if (!selected) return [];
     const all = (selected.content ?? "").split("\n");
     if (!contentFilter) return all;
     return all.filter((l) => l.toLowerCase().includes(contentFilter.toLowerCase()));
@@ -65,9 +65,9 @@ function EvidencePage() {
   return (
     <PageContainer>
       <PageHeader
-        eyebrow="INV-2481"
+        eyebrow="ThreatPulse"
         title="Evidence Explorer"
-        description="34 artifacts ingested, hashed and normalized. Raw content is read-only."
+        description="Evidence is built from the latest backend analysis."
       />
 
       <div className="grid gap-4 lg:grid-cols-[300px_1fr]">
@@ -104,7 +104,7 @@ function EvidencePage() {
                             onClick={() => setSelected(file)}
                             className={cn(
                               "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
-                              selected.id === file.id
+                              selected?.id === file.id
                                 ? "bg-primary/12 font-medium text-primary"
                                 : "text-muted-foreground hover:bg-accent hover:text-foreground",
                             )}
@@ -126,8 +126,12 @@ function EvidencePage() {
         <Card className="min-w-0">
           <CardHeader className="flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-              <CardTitle className="font-mono text-sm">{selected.label}</CardTitle>
-              <Badge variant="secondary" className="uppercase">{selected.fileType}</Badge>
+              <CardTitle className="font-mono text-sm">
+                {selected?.label ?? "No evidence available"}
+              </CardTitle>
+              {selected?.fileType && (
+                <Badge variant="secondary" className="uppercase">{selected.fileType}</Badge>
+              )}
             </div>
             <div className="relative w-full sm:w-64">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -141,20 +145,22 @@ function EvidencePage() {
           </CardHeader>
           <CardContent>
             <motion.div
-              key={selected.id}
+              key={selected?.id ?? "empty"}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="rounded-xl border bg-muted/40"
             >
               <ScrollArea className="h-[560px]">
                 <pre className="scroll-thin overflow-x-auto p-4 font-mono text-xs leading-relaxed">
-                  {lines.map((line, i) => (
+                  {selected && lines.map((line, i) => (
                     <div key={i} className="flex gap-4 hover:bg-accent/40">
                       <span className="w-8 shrink-0 select-none text-right text-muted-foreground/60">{i + 1}</span>
                       <span className="whitespace-pre-wrap break-all">{highlight(line, contentFilter)}</span>
                     </div>
                   ))}
-                  {lines.length === 0 && (
+                  {!selected ? (
+                    <span className="text-muted-foreground">Upload a CSV log file to generate evidence.</span>
+                  ) : lines.length === 0 && (
                     <span className="text-muted-foreground">No lines match “{contentFilter}”.</span>
                   )}
                 </pre>

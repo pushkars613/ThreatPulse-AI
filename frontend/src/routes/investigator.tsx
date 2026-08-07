@@ -1,14 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Bot, Send, Sparkles, User } from "lucide-react";
+import { Bot, Send, User } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { api } from "@/services/api";
-import { suggestedPrompts } from "@/services/mockData";
 import type { ChatMessage } from "@/types";
 
 export const Route = createFileRoute("/investigator")({
@@ -23,7 +22,7 @@ export const Route = createFileRoute("/investigator")({
   component: InvestigatorPage,
 });
 
-/** Minimal markdown renderer for the mocked assistant answers. */
+/** Minimal markdown renderer for assistant answers. */
 function Markdown({ text }: { text: string }) {
   const blocks = text.split("\n");
   return (
@@ -61,7 +60,7 @@ function InvestigatorPage() {
       id: "welcome",
       role: "assistant",
       content:
-        "I have indexed all 34 artifacts for **INV-2481**. Ask me anything about the intrusion — initial access, execution chain, persistence, credential access or exfiltration.",
+        "Upload and analyze a CSV log file, then ask me about the backend analysis.",
       createdAt: Date.now(),
     },
   ]);
@@ -93,9 +92,9 @@ function InvestigatorPage() {
   return (
     <PageContainer className="max-w-4xl">
       <PageHeader
-        eyebrow="INV-2481"
+        eyebrow="ThreatPulse"
         title="AI Investigator"
-        description="Evidence-grounded answers with citations to the artifacts that support them."
+        description="Answers are derived from the latest backend analysis."
       />
 
       <Card className="flex h-[calc(100vh-260px)] min-h-[520px] flex-col overflow-hidden py-0">
@@ -152,18 +151,6 @@ function InvestigatorPage() {
         </CardContent>
 
         <div className="border-t bg-card p-4">
-          <div className="mb-3 flex flex-wrap gap-2">
-            {suggestedPrompts.map((prompt) => (
-              <button
-                key={prompt}
-                onClick={() => send(prompt)}
-                className="inline-flex items-center gap-1.5 rounded-full border bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-              >
-                <Sparkles className="size-3" />
-                {prompt}
-              </button>
-            ))}
-          </div>
           <div className="flex items-end gap-2">
             <Textarea
               value={input}
