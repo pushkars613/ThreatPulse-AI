@@ -1,0 +1,4 @@
+[settings]
+# Disable GitHub artifact attestation verification for Python installs.
+# WARNING: this weakens supply-chain verification. Use only as a temporary workaround.
+python.github_attestations = false
