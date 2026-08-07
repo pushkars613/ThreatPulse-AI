@@ -1,0 +1,6 @@
+timestamp,source,event,severity
+09:31,Email,Phishing email received,High
+09:33,Browser,Clicked malicious link,High
+09:34,Chrome,Downloaded invoice.exe,Critical
+09:35,PowerShell,Encoded command executed,Critical
+09:37,Windows,Credential dumping detected,Critical
