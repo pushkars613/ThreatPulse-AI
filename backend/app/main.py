@@ -8,8 +8,8 @@ app = FastAPI(
 
 app.include_router(router)
 
-@app.get("/")
-def root():
+@app.get("/health")
+def health():
     return {
-        "message": "CyberCSI API Running"
+        "status": "ok"
     }
