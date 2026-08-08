@@ -1,0 +1,12 @@
+# Deploys the backend API when the service Root Directory is the repo root.
+# If you set Root Directory = "backend" instead, backend/railway.toml is used
+# and this file is ignored. Either path works.
+[build]
+builder = "RAILPACK"
+
+[deploy]
+startCommand = "python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir backend"
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
