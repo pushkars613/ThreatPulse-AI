@@ -1,0 +1,10 @@
+[build]
+builder = "RAILPACK"
+# nitro defaults to the cloudflare target, which Railway cannot run.
+# node-server emits .output/server/index.mjs instead.
+buildCommand = "SERVER_PRESET=node-server npm run build"
+
+[deploy]
+startCommand = "node .output/server/index.mjs"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

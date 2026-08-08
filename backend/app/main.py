@@ -19,7 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+app.include_router(router, prefix="/api")
+
 
 @app.get("/")
 def root():
@@ -28,3 +29,7 @@ def root():
         "version": settings.api_version,
         "environment": settings.environment,
     }
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": settings.app_name}
