@@ -1,4 +1,6 @@
 .env
+.venv/
+__pycache__/
 examples.csv
 __pycache__/
 *.pyc
